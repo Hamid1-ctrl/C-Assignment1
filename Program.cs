@@ -51,8 +51,8 @@ namespace StudentResultsProcessingSystem
             "Mathematics for Computing"
         };
 
-        const int NumberOfStudents = 3;
-        static Student[] students = new Student[NumberOfStudents];
+        static Student[]? students;
+        static int numberOfStudents = 0;
         static bool dataEntered = false;
 
         static void Main(string[] args)
@@ -110,9 +110,31 @@ namespace StudentResultsProcessingSystem
         static void EnterStudentResults()
         {
             Console.WriteLine();
-            for (int i = 0; i < NumberOfStudents; i++)
+            Console.WriteLine("===== ENTER STUDENT RESULTS =====");
+            Console.WriteLine();
+
+            // Ask the user how many students they want to enter (minimum 3).
+            while (true)
+            {
+                Console.Write("Enter the number of students (minimum 3): ");
+                string input = ReadLineOrExit();
+
+                if (int.TryParse(input, out int num) && num >= 3)
+                {
+                    numberOfStudents = num;
+                    break;
+                }
+
+                Console.WriteLine("Invalid number. Please enter a number that is 3 or more.");
+            }
+
+            students = new Student[numberOfStudents];
+            dataEntered = true;
+
+            for (int i = 0; i < numberOfStudents; i++)
             {
                 Student s = new Student();
+                Console.WriteLine();
                 Console.WriteLine("Enter details for Student {0}", i + 1);
                 Console.WriteLine();
 
@@ -133,12 +155,11 @@ namespace StudentResultsProcessingSystem
                 {
                     s.Scores[j] = ReadValidScore(courseNames[j]);
                 }
-                Console.WriteLine();
 
                 students[i] = s;
             }
 
-            dataEntered = true;
+            Console.WriteLine();
             Console.WriteLine("Student results have been recorded successfully.");
             Console.WriteLine();
         }
@@ -172,7 +193,7 @@ namespace StudentResultsProcessingSystem
 
         static void ViewStudentReport()
         {
-            if (!dataEntered)
+            if (!dataEntered || students == null)
             {
                 Console.WriteLine();
                 Console.WriteLine("No student data available. Please choose option 1 first.");
@@ -183,11 +204,11 @@ namespace StudentResultsProcessingSystem
             Console.WriteLine();
             Console.WriteLine("===== STUDENT RESULTS REPORT =====");
 
-            for (int i = 0; i < NumberOfStudents; i++)
+            for (int i = 0; i < numberOfStudents; i++)
             {
                 PrintStudent(students[i]);
 
-                if (i < NumberOfStudents - 1)
+                if (i < numberOfStudents - 1)
                 {
                     Console.WriteLine("--------------------------------------------");
                 }
@@ -221,11 +242,11 @@ namespace StudentResultsProcessingSystem
 
         static void DisplayStatistics()
         {
-            Student best = students[0];
+            Student best = students![0];
             Student lowest = students[0];
             double sumOfAverages = 0;
 
-            for (int i = 0; i < NumberOfStudents; i++)
+            for (int i = 0; i < numberOfStudents; i++)
             {
                 if (students[i].Average() > best.Average())
                     best = students[i];
@@ -234,7 +255,7 @@ namespace StudentResultsProcessingSystem
                 sumOfAverages += students[i].Average();
             }
 
-            double classAverage = sumOfAverages / NumberOfStudents;
+            double classAverage = sumOfAverages / numberOfStudents;
 
             Console.WriteLine();
             Console.WriteLine("===== CLASS STATISTICS =====");
