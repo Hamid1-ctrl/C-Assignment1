@@ -1,9 +1,4 @@
-## .NET build outputs
 bin/
 obj/
-
-## VS / Rider user files
-.vs/
-.idea/
-*.user
-*.suo
+*.exe
+*.pdb

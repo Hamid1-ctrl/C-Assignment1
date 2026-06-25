@@ -1,18 +1,56 @@
-// ============================================================
-// Mini Student Results Processing System
-// C# Console Application — Individual Practical Assignment
-// ============================================================
-
 using System;
 
-namespace C_Assignment1
+namespace StudentResultsProcessingSystem
 {
+    // Represents a single student and their results for 5 courses.
+    class Student
+    {
+        public string FullName;
+        public string StudentId;
+        public string Programme;
+        public string Level;
+        public int[] Scores = new int[5];
+
+        // Adds up all 5 course scores.
+        public int Total()
+        {
+            int sum = 0;
+            for (int i = 0; i < Scores.Length; i++)
+            {
+                sum += Scores[i];
+            }
+            return sum;
+        }
+
+        // Mean of the 5 course scores.
+        public double Average()
+        {
+            return (double)Total() / Scores.Length;
+        }
+
+        // Converts the average into a letter grade.
+        public string Grade()
+        {
+            double avg = Average();
+            if (avg >= 80) return "A";   // 80 - 100
+            if (avg >= 70) return "B";   // 70 - 79
+            if (avg >= 60) return "C";   // 60 - 69
+            if (avg >= 50) return "D";   // 50 - 59
+            return "F";                  // Below 50
+        }
+
+        // Decides whether the student has passed or failed.
+        public string Status()
+        {
+            if (Average() >= 50) return "Passed";
+            return "Failed";
+        }
+    }
+
     class Program
     {
-        // ---------- constants ----------
-        const int MAX_STUDENTS = 3;
-        const int NUM_COURSES = 5;
-        static readonly string[] CourseNames =
+        // The 5 fixed courses every student is scored on.
+        static string[] courseNames = new string[]
         {
             "Programming with C#",
             "Database Systems",
@@ -21,229 +59,201 @@ namespace C_Assignment1
             "Mathematics for Computing"
         };
 
-        // ---------- storage ----------
-        static string[] names      = new string[MAX_STUDENTS];
-        static string[] ids        = new string[MAX_STUDENTS];
-        static string[] programmes = new string[MAX_STUDENTS];
-        static string[] levels     = new string[MAX_STUDENTS];
-        static int[,]   scores     = new int[MAX_STUDENTS, NUM_COURSES];
-
+        const int NumberOfStudents = 3;
+        static Student[] students = new Student[NumberOfStudents];
         static bool dataEntered = false;
 
-        // --------------------------------------------------------
-        //  Entry point
-        // --------------------------------------------------------
         static void Main(string[] args)
-        {
-            RunMainMenu();
-        }
-
-        // --------------------------------------------------------
-        //  Main menu loop
-        // --------------------------------------------------------
-        static void RunMainMenu()
         {
             int choice;
 
-            do
+            // Main menu loop: keeps showing the menu until the user exits.
+            while (true)
             {
-                Console.Clear();
-                Console.WriteLine("===== STUDENT RESULTS PROCESSING SYSTEM =====");
-                Console.WriteLine();
-                Console.WriteLine("1. Enter Student Results");
-                Console.WriteLine("2. View Student Report");
-                Console.WriteLine("3. Exit");
-                Console.WriteLine();
+                DisplayMenu();
                 Console.Write("Choose an option: ");
-
                 string input = Console.ReadLine();
 
-                // Validate menu choice
-                if (!int.TryParse(input, out choice) || choice < 1 || choice > 3)
+                // Guard against non-numeric menu input.
+                if (!int.TryParse(input, out choice))
                 {
                     Console.WriteLine();
                     Console.WriteLine("Invalid option. Please enter 1, 2, or 3.");
-                    Pause();
+                    Console.WriteLine();
                     continue;
                 }
 
-                Console.WriteLine();
-
-                switch (choice)
+                if (choice == 1)
                 {
-                    case 1:
-                        EnterStudentResults();
-                        break;
-                    case 2:
-                        ViewStudentReport();
-                        break;
-                    case 3:
-                        Console.WriteLine("Thank you for using the Student Results Processing System.");
-                        Pause();
-                        break;
+                    EnterStudentResults();
                 }
-
-            } while (choice != 3);
+                else if (choice == 2)
+                {
+                    ViewStudentReport();
+                }
+                else if (choice == 3)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Thank you for using the Student Results Processing System.");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid option. Please enter 1, 2, or 3.");
+                    Console.WriteLine();
+                }
+            }
         }
 
-        // --------------------------------------------------------
-        //  Option 1 – collect data for all students
-        // --------------------------------------------------------
+        // Prints the main menu.
+        static void DisplayMenu()
+        {
+            Console.WriteLine("===== STUDENT RESULTS PROCESSING SYSTEM =====");
+            Console.WriteLine();
+            Console.WriteLine("1. Enter Student Results");
+            Console.WriteLine("2. View Student Report");
+            Console.WriteLine("3. Exit");
+            Console.WriteLine();
+        }
+
+        // Collects details and scores for all students.
         static void EnterStudentResults()
         {
-            for (int i = 0; i < MAX_STUDENTS; i++)
+            Console.WriteLine();
+            for (int i = 0; i < NumberOfStudents; i++)
             {
-                Console.WriteLine($"Enter details for Student {i + 1}");
+                Student s = new Student();
+                Console.WriteLine("Enter details for Student {0}", i + 1);
                 Console.WriteLine();
 
-                // Basic details
                 Console.Write("Enter full name: ");
-                names[i] = Console.ReadLine();
+                s.FullName = Console.ReadLine();
 
                 Console.Write("Enter student ID: ");
-                ids[i] = Console.ReadLine();
+                s.StudentId = Console.ReadLine();
 
                 Console.Write("Enter programme: ");
-                programmes[i] = Console.ReadLine();
+                s.Programme = Console.ReadLine();
 
                 Console.Write("Enter level: ");
-                levels[i] = Console.ReadLine();
+                s.Level = Console.ReadLine();
 
                 Console.WriteLine();
-
-                // Course scores with validation
-                for (int j = 0; j < NUM_COURSES; j++)
+                // Read a validated score for each of the 5 courses.
+                for (int j = 0; j < courseNames.Length; j++)
                 {
-                    scores[i, j] = ReadValidScore(CourseNames[j]);
+                    s.Scores[j] = ReadValidScore(courseNames[j]);
                 }
+                Console.WriteLine();
 
-                Console.WriteLine();
-                Console.WriteLine($"Student {i + 1} results entered successfully.");
-                Console.WriteLine();
+                students[i] = s;
             }
 
             dataEntered = true;
-            Pause();
+            Console.WriteLine("Student results have been recorded successfully.");
+            Console.WriteLine();
         }
 
-        // --------------------------------------------------------
-        //  Keep asking until the user enters a score in 0-100
-        // --------------------------------------------------------
-        static int ReadValidScore(string courseName)
+        // Keeps asking for a score until a valid value (0 - 100) is entered.
+        static int ReadValidScore(string course)
         {
             int score;
             while (true)
             {
-                Console.Write($"Enter score for {courseName}: ");
+                Console.Write("Enter score for {0}: ", course);
                 string input = Console.ReadLine();
 
-                if (!int.TryParse(input, out score) || score < 0 || score > 100)
+                if (int.TryParse(input, out score) && score >= 0 && score <= 100)
                 {
-                    Console.WriteLine("Invalid score. Score must be between 0 and 100.");
-                    continue;
+                    return score;
                 }
 
-                break;
+                Console.WriteLine("Invalid score. Score must be between 0 and 100.");
             }
-            return score;
         }
 
-        // --------------------------------------------------------
-        //  Option 2 – display full report
-        // --------------------------------------------------------
+        // Shows the full report for every student plus class statistics.
         static void ViewStudentReport()
         {
             if (!dataEntered)
             {
-                Console.WriteLine("No student data has been entered yet.");
-                Console.WriteLine("Please select option 1 to enter student results first.");
-                Pause();
+                Console.WriteLine();
+                Console.WriteLine("No student data available. Please choose option 1 first.");
+                Console.WriteLine();
                 return;
             }
 
-            Console.WriteLine("===== STUDENT RESULTS REPORT =====");
             Console.WriteLine();
+            Console.WriteLine("===== STUDENT RESULTS REPORT =====");
 
-            int bestStudent   = 0;
-            int worstStudent  = 0;
-            double classTotal = 0;
-
-            for (int i = 0; i < MAX_STUDENTS; i++)
+            for (int i = 0; i < NumberOfStudents; i++)
             {
-                // --- header ---
-                Console.WriteLine($"--- Student {i + 1} ---");
-                Console.WriteLine($"Student Name  : {names[i]}");
-                Console.WriteLine($"Student ID    : {ids[i]}");
-                Console.WriteLine($"Programme     : {programmes[i]}");
-                Console.WriteLine($"Level         : {levels[i]}");
-                Console.WriteLine();
+                PrintStudent(students[i]);
 
-                // --- individual scores ---
-                int    total   = 0;
-                for (int j = 0; j < NUM_COURSES; j++)
+                // Separator between students (but not after the last one).
+                if (i < NumberOfStudents - 1)
                 {
-                    Console.WriteLine($"{CourseNames[j]}: {scores[i, j]}");
-                    total += scores[i, j];
+                    Console.WriteLine("--------------------------------------------");
                 }
-
-                double average = (double)total / NUM_COURSES;
-                string grade   = GetGrade(average);
-                string status  = average >= 50 ? "Passed" : "Failed";
-
-                Console.WriteLine();
-                Console.WriteLine($"Total Score  : {total}");
-                Console.WriteLine($"Average Score: {average:F1}");
-                Console.WriteLine($"Grade        : {grade}");
-                Console.WriteLine($"Status       : {status}");
-                Console.WriteLine();
-
-                classTotal += average;
-
-                if (average > GetAverage(bestStudent))
-                    bestStudent = i;
-                if (average < GetAverage(worstStudent))
-                    worstStudent = i;
             }
 
-            // --- bonus: class summary ---
-            double classAverage = classTotal / MAX_STUDENTS;
-            Console.WriteLine("===== CLASS SUMMARY =====");
-            Console.WriteLine($"Class Average        : {classAverage:F1}");
-            Console.WriteLine($"Best Student         : {names[bestStudent]} ({GetAverage(bestStudent):F1})");
-            Console.WriteLine($"Lowest Average Student: {names[worstStudent]} ({GetAverage(worstStudent):F1})");
+            DisplayStatistics();
+
+            Console.WriteLine();
+            Console.Write("Press Enter to return to the menu...");
+            Console.ReadLine();
+        }
+
+        // Prints a single student's details, scores, total, average, grade and status.
+        static void PrintStudent(Student s)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Student Name: {0}", s.FullName);
+            Console.WriteLine("Student ID: {0}", s.StudentId);
+            Console.WriteLine("Programme: {0}", s.Programme);
+            Console.WriteLine("Level: {0}", s.Level);
             Console.WriteLine();
 
-            Pause();
+            for (int j = 0; j < courseNames.Length; j++)
+            {
+                Console.WriteLine("{0}: {1}", courseNames[j], s.Scores[j]);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Total Score: {0}", s.Total());
+            Console.WriteLine("Average Score: {0:F1}", s.Average());
+            Console.WriteLine("Grade: {0}", s.Grade());
+            Console.WriteLine("Status: {0}", s.Status());
         }
 
-        // --------------------------------------------------------
-        //  Helpers
-        // --------------------------------------------------------
-
-        // Return the average score for a stored student index
-        static double GetAverage(int index)
+        // Bonus: best student, lowest average and the class average.
+        static void DisplayStatistics()
         {
-            int total = 0;
-            for (int j = 0; j < NUM_COURSES; j++)
-                total += scores[index, j];
-            return (double)total / NUM_COURSES;
-        }
+            Student best = students[0];
+            Student lowest = students[0];
+            double sumOfAverages = 0;
 
-        // Map average to letter grade
-        static string GetGrade(double average)
-        {
-            if (average >= 80) return "A";
-            if (average >= 70) return "B";
-            if (average >= 60) return "C";
-            if (average >= 50) return "D";
-            return "F";
-        }
+            for (int i = 0; i < NumberOfStudents; i++)
+            {
+                if (students[i].Average() > best.Average())
+                {
+                    best = students[i];
+                }
+                if (students[i].Average() < lowest.Average())
+                {
+                    lowest = students[i];
+                }
+                sumOfAverages += students[i].Average();
+            }
 
-        // Press Enter to continue
-        static void Pause()
-        {
-            Console.Write("Press Enter to continue...");
-            Console.ReadLine();
+            double classAverage = sumOfAverages / NumberOfStudents;
+
+            Console.WriteLine();
+            Console.WriteLine("===== CLASS STATISTICS =====");
+            Console.WriteLine("Best Student: {0} (Average: {1:F1})", best.FullName, best.Average());
+            Console.WriteLine("Lowest Average: {0} (Average: {1:F1})", lowest.FullName, lowest.Average());
+            Console.WriteLine("Class Average: {0:F1}", classAverage);
         }
     }
 }
