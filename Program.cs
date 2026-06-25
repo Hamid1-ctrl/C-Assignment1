@@ -4,10 +4,10 @@ namespace StudentResultsProcessingSystem
 {
     class Student
     {
-        public string FullName;
-        public string StudentId;
-        public string Programme;
-        public string Level;
+        public string FullName = "";
+        public string StudentId = "";
+        public string Programme = "";
+        public string Level = "";
         public int[] Scores = new int[5];
 
         public int Total()
@@ -63,13 +63,11 @@ namespace StudentResultsProcessingSystem
             {
                 DisplayMenu();
 
-                // Keep prompting until we get a valid integer.
                 while (true)
                 {
                     Console.Write("Choose an option: ");
-                    string input = Console.ReadLine();
+                    string input = Console.ReadLine()!;
 
-                    // Guard against null or empty input (e.g. exhausted stdin).
                     if (string.IsNullOrEmpty(input))
                     {
                         Console.WriteLine("No input received. Exiting...");
@@ -145,10 +143,9 @@ namespace StudentResultsProcessingSystem
             Console.WriteLine();
         }
 
-        // Reads a line; exits gracefully if input is exhausted.
         static string ReadLineOrExit()
         {
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
             if (input == null)
             {
                 Console.WriteLine();
